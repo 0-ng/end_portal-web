@@ -2,10 +2,14 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
+import axios from 'axios'
 import router from './router'
+
 // import  ElementUI  from 'ElementUI'
 
 // Vue.use(ElementUI);
+axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
