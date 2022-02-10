@@ -120,7 +120,7 @@
         data = data.substring(1)
         return data
       },
-      setToken(token) {
+      setAuthorization(token) {
         this.$axios.interceptors.request.use(config => {
           if (token) {  // 判断是否存在token，如果存在的话，则每个http header都加上token
             config.headers.Authorization = token;
@@ -131,14 +131,25 @@
           return Promise.reject(error)
         })
       },
-      getEnv() {
+      setRestEnv(token) {
+        this.$axios.interceptors.request.use(config => {
+          if (token) {  // 判断是否存在token，如果存在的话，则每个http header都加上token
+            config.headers.portal_rest = token.split(".")[1];
+            console.log('interceptors config=', config)
+          }
+          return config
+        }, error => {
+          return Promise.reject(error)
+        })
+      },
+      getData() {
         this.$axios.get('/api/')
           .then((res) => {
             if (res.data.code != "0") {
               window.location.href = "http://127.0.0.1:8000/"
             } else {
               this.ip = res.data.data.ip
-              this.env = res.data.data.token
+              this.env = window.sessionStorage.getItem('portal-token')
             }
           })
       },
@@ -149,11 +160,13 @@
           .then((res) => {
             console.log(res)
             if (res.data.code != "0") {
+              return
               window.location.href = "http://127.0.0.1:8000/"
             }
             window.sessionStorage.setItem('portal-token', res.data.data.token)
-            this.setToken(res.data.data.token)
-            this.getEnv();
+            this.setRestEnv(res.data.data.token)
+            this.setAuthorization(res.data.data.token)
+            this.getData();
           })
       }
     }
