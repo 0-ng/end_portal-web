@@ -4,6 +4,8 @@ FROM  leung0ng/nginx
 ##    git clone --recursive "https://github.com/0-ng/end_nginx.git" &&\
 COPY ./default.conf /usr/local/nginx/conf/nginx.conf
 COPY ./dist /usr/local/nginx/html
+RUN sed -i "s/__APP_ENV__/$APP_ENV/g" ./app.js
+
 ##    git clone --recursive "https://github.com/0-ng/end_vue.git" &&\
 
 #EXPOSE 映射端口

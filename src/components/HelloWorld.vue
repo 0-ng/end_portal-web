@@ -86,6 +86,7 @@
 </template>
 
 <script>
+  import { Partten } from "@/const";
   export default {
     name: 'HelloWorld',
     data() {
@@ -99,7 +100,6 @@
       this.ASDinit()
     },
     methods: {
-
       // 根据参数名获取url中的参数
       GetQueryString(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -143,7 +143,7 @@
         })
       },
       getData() {
-        this.$axios.get('/api/')
+        this.$axios.get('/api/index')
           .then((res) => {
             if (res.data.code != "0") {
               window.location.href = "http://127.0.0.1:8000/"
@@ -154,14 +154,15 @@
           })
       },
       ASDinit() {
+        console.log(Partten.APP_ENV)
         var params = {code: this.GetQueryString('code')}
         var data = this.getParamsData(params)
         this.$axios.post('/oauth/portalLogin', data, {headers: {'content-type': "application/x-www-form-urlencoded"}})
           .then((res) => {
             console.log(res)
             if (res.data.code != "0") {
-              return
               window.location.href = "http://127.0.0.1:8000/"
+              return
             }
             window.sessionStorage.setItem('portal-token', res.data.data.token)
             this.setRestEnv(res.data.data.token)
