@@ -3,90 +3,13 @@
     <h1>{{ msg }}</h1>
     <h1>ip: {{ ip }}</h1>
     <h1>env: {{ env }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
   </div>
 </template>
 
 <script>
   import { Partten } from "@/const";
+  import  jwt  from  'jsonwebtoken'
+
   export default {
     name: 'HelloWorld',
     data() {
@@ -139,7 +62,9 @@
         console.log("set restENV ", token)
         this.$axios.interceptors.request.use(config => {
           if (token) {  // 判断是否存在token，如果存在的话，则每个http header都加上token
-            config.headers.portal_rest = (token || "").split(".")[1];
+            let jwt = require('jsonwebtoken');
+            let env = jwt.decode(token)
+            config.headers.portal_rest = env['portal_rest']
             console.log('interceptors config=', config)
           }
           return config
@@ -151,22 +76,19 @@
         this.$axios.get('/api/index')
           .then((res) => {
             if (res.data.code !== "0") {
-              window.location.href = "http://oauth-web/"
+              window.location.href = "http://127.0.0.1:8000/"
             } else {
               this.ip = res.data.data.ip
-              this.env = window.sessionStorage.getItem('portal-token')
+              this.env = "portal-web-" + Partten.APP_ENV
             }
           })
       },
       checkAuthorization(authorization){
         console.log("checkAuthorization " + authorization)
-        var env = (authorization || "").split(".")
-        if(env.length !== 4){
-          console.log("env length not match")
-          console.log("env", env)
-          return false
-        }
-        if(env[2] !== Partten.APP_ENV){
+        let  jwt = require('jsonwebtoken');
+        let env = jwt.decode(authorization)
+        console.log("decode", env)
+        if(env['portal_web'] !== Partten.APP_ENV){
           console.log("APP_ENV not match")
           return false
         }
@@ -181,7 +103,7 @@
         }
         var params = {code: this.GetQueryString('code')}
         var data = this.getParamsData(params)
-        await this.$axios.post('/oauth/portalLogin', data, {headers: {'content-type': "application/x-www-form-urlencoded"}})
+        await this.$axios.post('/oauth/api/portalLogin', data, {headers: {'content-type': "application/x-www-form-urlencoded"}})
           .then((res) => {
             if (res.data.code !== "0") {
               Authorization = ""
@@ -193,8 +115,7 @@
                 console.log("get Authorization success")
               }else{
                 console.log("get Authorization fail")
-                window.location.href = "http://oauth-web/"
-                // window.location.href = "http://127.0.0.1:8000/"
+                window.location.href = "http://127.0.0.1:8000/"
               }
             }
           })
