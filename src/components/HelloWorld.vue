@@ -85,13 +85,24 @@
       },
       checkAuthorization(authorization){
         console.log("checkAuthorization " + authorization)
+        if(authorization == null){
+          return false
+        }
         let  jwt = require('jsonwebtoken');
         let env = jwt.decode(authorization)
+        if(env == null){
+          return false
+        }
         console.log("decode", env)
         if(env['portal_web'] !== Partten.APP_ENV){
           console.log("APP_ENV not match")
           return false
         }
+        if(env['username'] !== this.GetQueryString('username')){
+          console.log("user not match")
+          return false
+        }
+
         return true
       },
       getAuthorization: async function() {
