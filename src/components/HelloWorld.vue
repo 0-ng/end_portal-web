@@ -1,11 +1,12 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <h1>user: {{ username }}</h1>
     <h1>ip: {{ ip }}</h1>
     <h1>env: {{ env }}</h1>
+    <button @click="LogoutXXX()">退出登录</button>
   </div>
 </template>
-
 <script>
   import { Partten } from "@/const";
   import  jwt  from  'jsonwebtoken'
@@ -27,6 +28,10 @@
       this.getData();
     },
     methods: {
+      LogoutXXX(){
+        window.sessionStorage.removeItem('portal-token')
+        window.location.href = "http://127.0.0.1:8000/?logout=1"
+      },
       // 根据参数名获取url中的参数
       GetQueryString(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -80,6 +85,7 @@
             } else {
               this.ip = res.data.data.ip
               this.env = "portal-web-" + Partten.APP_ENV
+              this.username = res.data.data.username
             }
           })
       },
@@ -98,10 +104,10 @@
           console.log("APP_ENV not match")
           return false
         }
-        if(env['username'] !== this.GetQueryString('username')){
-          console.log("user not match")
-          return false
-        }
+        // if(env['username'] !== this.GetQueryString('username')){
+        //   console.log("user not match")
+        //   return false
+        // }
 
         return true
       },
